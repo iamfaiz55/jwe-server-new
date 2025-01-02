@@ -1,11 +1,9 @@
 const redis = require('redis');
 
-const redisHost = process.env.REDIS_HOST || '127.0.0.1';
-const redisPort = process.env.REDIS_PORT || 6379;
-// Initialize the Redis client
+
 const redisClient = redis.createClient({
-    host: redisHost,
-    port: redisPort,
+    host: process.env.REDIS_HOST || '127.0.0.1',
+    port: process.env.REDIS_PORT || 6379,
 });
 // Connect to Redis
 redisClient.connect().catch((err) => {
