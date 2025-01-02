@@ -3,8 +3,11 @@ const redis = require('redis');
 // REDIS_URL=
 
 // Initialize the Redis client
+// const redisClient = redis.createClient({
+//     url: 'redis://default:wATEGhsJDFujaRgiOTYUcFYMLBmSURrf@my-redis-service.internal:6379',
+// });
 const redisClient = redis.createClient({
-    url: 'redis://default:wATEGhsJDFujaRgiOTYUcFYMLBmSURrf@my-redis-service.internal:6379',
+    url: 'redis://default:wATEGhsJDFujaRgiOTYUcFYMLBmSURrf@<RAILWAY_PRIVATE_DOMAIN>:6379',
 });
 // Connect to Redis
 redisClient.connect().catch((err) => {
