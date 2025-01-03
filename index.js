@@ -70,7 +70,7 @@ app.use("/api/user", userProtected, require("./routers/user.routes"))
 app.use("/api/open", require("./routers/open.routes"))
 
 app.use("*", (req, res)=> {
-    res.redirect("frontend ")
+    res.status(404).json({message:"Resource not Found"})
 })
 app.use((err, req, res, next) => {
   console.error(err);
