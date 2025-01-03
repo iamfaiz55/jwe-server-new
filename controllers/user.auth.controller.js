@@ -63,6 +63,7 @@
         if (!user) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
+    console.log("userrrr", user);
     
         // Compare the provided password with the stored hashed password
         const isMatch = await bcrypt.compare(password, user.password);
