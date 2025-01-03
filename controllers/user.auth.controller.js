@@ -94,7 +94,7 @@
 
 
 
-    const asyncHandler = require("express-async-handler");
+    // const asyncHandler = require("express-async-handler");
 
     exports.logoutUser = asyncHandler(async (req, res) => {
         // Clear the user JWT cookie to log the user out
