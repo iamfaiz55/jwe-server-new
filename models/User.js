@@ -11,6 +11,9 @@ const userSchema = new mongoose.Schema({
     otp:{
         type:String,
     },
+  password:{
+        type:String,
+    },
     email:{
         type:String,
     },
