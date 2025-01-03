@@ -1123,3 +1123,17 @@ GET /api/user/get-cart/6713cdac565856b74db1df71 304 171.626 ms
 GET /api/open/get-adds-images 304 79.441 ms
 GET /api/open/carousel 304 120.227 ms
 GET /api/open/get-products?page=1&limit=8 304 220.859 ms
+GET /api/admin/get-all-products 403 9.130 ms
+GET /api/open/get-company 304 255.590 ms
+POST /api/adminAuth/logout-admin 200 1.664 ms
+POST /api/adminAuth/login-admin 200 177.239 ms
+POST /api/adminAuth/verify-otp-admin 200 17.516 ms
+GET /api/admin/get-all-products 403 3.105 ms
+GET /api/admin/get-all-products 500 12.708 ms
+GET /api/open/get-company 304 72.177 ms
+GET /api/admin/get-all-products 403 8.289 ms
+GET /api/open/get-company 304 45.032 ms
+GET /api/open/get-company 304 116.375 ms
+GET /api/admin/get-all-products 200 159.535 ms
+GET /api/open/get-company 304 90.105 ms
+GET /api/admin/get-all-products 304 175.653 ms

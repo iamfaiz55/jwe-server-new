@@ -19,6 +19,7 @@ const jwt = require("jsonwebtoken")
 // }
 exports.adminProtected = (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];  // Get the token from Authorization header (Bearer token)
+console.log(token);
 
     if (!token) {
         res.status(401).json({ message: "No token provided, access denied!" });
@@ -26,7 +27,8 @@ exports.adminProtected = (req, res, next) => {
     }
 
     // Verify the token
-    jwt.verify(token, "secretKey", (err, decoded) => {
+    // log
+    jwt.verify(token, process.env.JWT_KEY, (err, decoded) => {
         if (err) {
             res.status(403).json({ message: "Invalid or expired token!" });
             return; // Stop the function execution after sending the response
