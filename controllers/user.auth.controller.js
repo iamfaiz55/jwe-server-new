@@ -1,126 +1,104 @@
-const asyncHandler = require("express-async-handler")
-const jwt = require("jsonwebtoken")
-const { checkEmpty } = require("../utils/checkEmpty")
-const User = require("../models/User");
-const History = require("../models/History");
-const mongoose  = require("mongoose");
-const crypto = require("crypto");
-const sendSms = require("../utils/sendSms");
+    const asyncHandler = require("express-async-handler")
+    const jwt = require("jsonwebtoken")
+    const { checkEmpty } = require("../utils/checkEmpty")
+    const User = require("../models/User");
+    const History = require("../models/History");
+    const mongoose  = require("mongoose");
+    const bcrypt = require("bcryptjs")
 
-exports.loginUser = asyncHandler(async (req, res) => {
-    const { mobile } = req.body;
+    const crypto = require("crypto");
+    const sendSms = require("../utils/sendSms");
 
-    const { isError, error } = checkEmpty({ mobile});
-    if (isError) {
-        return res.status(400).json({ message: "All Fields required", error });
-    }
-    let user = await User.findOne({ mobile });
-    const otp = crypto.randomInt(100000, 1000000);
-    if (!user) {    
-      
-        //    send otp to userr
-        const message = `Your OTP is ${otp}`;
 
-    //   const x =  await sendSms(message, [mobile]);
-   console.log(x);
-   
-         await User.create({mobile, otp})
-          return res.json({ message: "OTP sent for User registration", result:  mobile  });
-        }else if(user.isBlock){
-            return res.status(406).json({ message: "You Are Blocked By Admin" });
-        
-        }else if(user.isDelete === true){
-            return res.status(410).json({ message: "Your ------- Account Was Deactivated" });
+    exports.registerUser = asyncHandler(async (req, res) => {
+        const { email, password, name } = req.body;
+    
+        // Validate if all required fields are provided
+        const { isError, error } = checkEmpty({ email, password, name });
+        if (isError) {
+            return res.status(400).json({ message: "All Fields are required", error });
         }
     
+        // Check if the user already exists
+        let user = await User.findOne({ email });
+        if (user) {
+            return res.status(400).json({ message: "User already exists with this email" });
+        }
     
+        // Hash the password before saving the user
+        const hashedPassword = await bcrypt.hash(password, 10);
     
-    else {
-        const message = `Your OTP is ${otp}`;
-
-    //   const x =  await sendSms(message, [mobile]);
-//    console.log(x);
-        //    send otp to userr
-         await User.findByIdAndUpdate(user._id, {otp})
-
-        return res.status(200).json({message: "OTP sent Success Fir Login" ,result:mobile });
-    }
-});
-
-exports.verifyOTPUser = asyncHandler(async (req, res) => {
-    const { otp, mobile } = req.body
-
-    const { isError, error } = checkEmpty({ mobile, otp })
-    if (isError) {
-        return res.status(401).json({ message: "All Fields required", error })
-    }
-    const result = await User.findOne({mobile })
-    if (!result) {
-        return res.status(401).json({ message: "User Not Found" })
-    }
-
-    if (otp != result.otp) {
-        return res.status(401).json({ message: "Invalid OTP" })
-    }
-    const token = jwt.sign({ userId: result._id }, process.env.JWT_KEY, { expiresIn: "1d" })
-
-    res.cookie("user", token, {
-        maxAge: 86400000,
-        // maxAge: 60000,
-        httpOnly: true,
+        // Create a new user instance
+        user = new User({
+            name,
+            email,
+            password: hashedPassword
+        });
+    
+        // Save the user to the database
+        await user.save();
+    
+        // Send a success response with the user data (excluding password)
+        res.status(201).json({
+            message: "User registered successfully",
+            result: {
+                _id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        });
     });
- 
-    // const currentDate = new Date().toLocaleDateString()  
-    // const currentTime = new Date().toLocaleTimeString()  
+    
+    exports.loginUser = asyncHandler(async (req, res) => {
+        const { email, password } = req.body;
+    
+        // Validate if all required fields are provided
+        const { isError, error } = checkEmpty({ email, password });
+        if (isError) {
+            return res.status(400).json({ message: "All Fields are required", error });
+        }
+    
+        // Find the user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+    
+        // Compare the provided password with the stored hashed password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+    
+        // Generate a JWT token
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_KEY, { expiresIn: "1d" });
+    
+        // Send the token as a cookie
+        res.cookie("user", token, {
+            maxAge: 86400000, // 1 day
+            httpOnly: true
+        });
+    
+        // Send a success response with user data (excluding password)
+        res.json({
+            message: "Login successful",
+            result: {
+                _id: user._id,
+                name: user.name,
+                email: user.email
+            }
+        });
+    });
+  
 
-    // let userHistory = await History.findOne({ userId: result._id });
-
-    // if (!userHistory) {
-    //     await History.create({
-    //         userId: result._id,
-    //         login: [{ date: currentDate, time: currentTime }]
-    //     });
-    // } else {
-    //     await History.findByIdAndUpdate(
-    //         userHistory._id,
-    //         { $push: { login: { date: currentDate, time: currentTime } } },
-    //     );
-    // }
-
-    res.json({ message: "OTP Verify Success.", result:{
-        mobile:result.mobile,
-        _id:result._id,
-        name:result && result.name && result.name ,
-        email:result && result.email && result.email ,
-        image:result && result.image && result.image,
-
-    }})
-})
 
 
+    const asyncHandler = require("express-async-handler");
 
-
-
-exports.logoutUser = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-
-    // if (!mongoose.Types.ObjectId.isValid(id)) {
-    //     return res.status(400).json({ message: "Invalid user ID format" });
-    // }
-
-    res.clearCookie("user");
-
-    // const date = new Date().toLocaleDateString();
-    // const time = new Date().toLocaleTimeString();
-
-    // let userHistory = await History.findOne({ userId: new mongoose.Types.ObjectId(id) });
-
-    // if (userHistory && userHistory._id) {
-    //     const newResult = await History.findByIdAndUpdate(userHistory._id, {
-    //         $push: { logout: { date: date, time: time } }
-    //     });
-
-    //     console.log("new", newResult);
-        res.json({ message: "User Logout Success" });
-    // }
-});
+    exports.logoutUser = asyncHandler(async (req, res) => {
+        // Clear the user JWT cookie to log the user out
+        res.clearCookie("user");
+    
+        res.json({ message: "User logged out successfully" });
+    });
+    
