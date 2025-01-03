@@ -18,7 +18,6 @@ const sendEmail = require("../utils/email")
 const PDFDocument = require('pdfkit-table');
 // require('pdfkit-table');
 const fs = require('fs');
-const https = require('https');
 // const crypto= require('crypto');
 const path = require('path');
 const mongoose= require("mongoose")
@@ -27,9 +26,7 @@ const Tax = require("../models/Tax")
 const Review = require("../models/Review")
 const PaymentMethod = require("../models/PaymentMethod")
 const History = require("../models/History")
-const axios = require('axios');
-const redisClient = require("../utils/redisClient")
-const { setCache } = require("../utils/redis")
+const { redisClient } = require("../utils/redisClient")
 // const { payment } = require("..")
 // const Liked = require("../models/Liked")
 
@@ -523,7 +520,7 @@ exports.getAllProduct = asyncHandler(async (req, res) => {
             },
         };
 
-        await redisClient.setEx(redisKey, 3600, JSON.stringify(responseData)); 
+        await redisClient.set(redisKey, JSON.stringify(responseData), 'EX', 3600);
         res.json(responseData);
     } catch (error) {
         console.error('Error fetching products:', error);

@@ -24,10 +24,12 @@ const { default: Redis } = require("ioredis")
 require("dotenv").config()
 
 // const redis = Redis.createClient(process.env.REDIS_URL)
-const redisClient = new Redis(process.env.REDIS_URL)
+const redisClient = new Redis(process.env.REDIS_URL|| "rediss://red-ctrokqjtq21c738vj94g:gJvmsZsOG3yJRN9nwBquz02tda6DpvHE@singapore-redis.render.com:6379")
 redisClient.on('error', (err) => {
     console.error("Redis connection error:", err);
 })
+
+
 
 // const redis = new Redis({
 //     host: process.env.REDIS_HOST,

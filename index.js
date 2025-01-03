@@ -19,10 +19,17 @@ require("dotenv").config()
 
 const app = express()
 const server = http.createServer(app)
-redisClient.on("connect", ()=>{
-  console.log("redis Connected");
-  
-})
+redisClient.on('connect', async () => {
+  console.log('Redis Connected');
+  try {
+      await redisClient.set('test-key', 'test-value');
+      const value = await redisClient.get('test-key');
+      console.log('Test Redis fetch:', value); // Should log: 'test-value'
+  } catch (err) {
+      console.error('Test Redis operation failed:', err);
+  }
+});
+
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {
