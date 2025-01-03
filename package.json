@@ -26,6 +26,7 @@
     "express-rate-limit": "^7.4.1",
     "express-useragent": "^1.0.15",
     "fast-two-sms": "^3.0.0",
+    "ioredis": "^5.4.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.5.2",
     "morgan": "^1.10.0",

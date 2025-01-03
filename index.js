@@ -13,12 +13,16 @@ const { adminProtected } = require("./middlewares/admin.protected")
 // const { userProtected } = require("./middlewares/userProtected")
 const User = require("./models/User")
 const { userProtected } = require("./middlewares/userProtected")
+const { redisClient } = require("./utils/redisClient")
 
 require("dotenv").config()
 
 const app = express()
 const server = http.createServer(app)
-
+redisClient.on("connect", ()=>{
+  console.log("redis Connected");
+  
+})
 mongoose
   .connect(process.env.MONGO_URL)
   .then(() => {
