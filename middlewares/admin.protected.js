@@ -1,4 +1,4 @@
-// const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken")
 
 
 // exports.adminProtected = (req, res, next) => {
