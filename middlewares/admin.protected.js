@@ -17,7 +17,7 @@
 //         next()
 //    })
 // }
-const adminProtected = (req, res, next) => {
+exports.adminProtected = (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];  // Get the token from Authorization header (Bearer token)
 
     if (!token) {
@@ -38,4 +38,4 @@ const adminProtected = (req, res, next) => {
     });
 };
 
-export default adminProtected;
+//  default adminProtected;
