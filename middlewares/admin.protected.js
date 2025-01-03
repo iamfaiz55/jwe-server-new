@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken")
 
 exports.adminProtected = (req, res, next) => {
     const { admin } = req.cookies
+    console.log(admin,"cookiee");
+    
     if (!admin) {
         return res.status(409).json({ message: "Session Expired" })
     }
