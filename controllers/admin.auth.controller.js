@@ -93,20 +93,21 @@ exports.verifyOTP = asyncHandler(async (req, res) => {
          { expiresIn: "1d" }
         )
 
-    res.cookie("admin", token, {
-        maxAge: 86400000,
-        // maxAge: 60000,
-        httpOnly: false,
-        // sameSite: 'Lax', 
-        secure: false,   
+    // res.cookie("admin", token, {
+    //     maxAge: 86400000,
+    //     // maxAge: 60000,
+    //     httpOnly: false,
+    //     // sameSite: 'Lax', 
+    //     secure: false,   
 
-    });
+    // });
  
     res.json({
         message: "OTP Verify Success.", result: {
             _id: result._id,
             name: result.name,
-            email: result.email
+            email: result.email,
+            token
         }
     })
 })
