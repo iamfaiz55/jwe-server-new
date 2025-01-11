@@ -36,6 +36,7 @@ exports.registerAdmin = asyncHandler(async (req, res) => {
 
 exports.loginAdmin = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
+console.log("----------", password);
 
     const {isError, error}= checkEmpty({email, password})
     if(isError){
@@ -54,12 +55,12 @@ exports.loginAdmin = asyncHandler(async (req, res) => {
     const otp = crypto.randomInt(100000, 1000000);
     const message = `Your OTP is ${otp}`;
 
-    //  await sendSms(message, [mobile]);
+     await sendEmail({to:admin.email ,subject: "VERIFY OTP", message});
 
     await Admin.findByIdAndUpdate(admin._id, { otp });
 
 
-console.log("result data", admin);
+// console.log("result data", admin);
 
     res.json({
         message: "Credentials Verify Success. OTP sent to your registered email.",

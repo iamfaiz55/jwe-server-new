@@ -1,6 +1,10 @@
 const nodemailer = require("nodemailer")
 
 const sendEmail = ({to, subject, message, attachments })=> new Promise((resolve, reject)=>{
+    console.log("to", to);
+    console.log("subject", subject);
+    console.log("message",message);
+    
    const transport = nodemailer.createTransport({
         service:"gmail",
         auth:{
@@ -17,7 +21,7 @@ const sendEmail = ({to, subject, message, attachments })=> new Promise((resolve,
         attachments: attachments,
     }, err=> {
         if(err){
-            console.log(err);
+            console.log("---------------",err);
             reject(false)
         }else{
             resolve(true)

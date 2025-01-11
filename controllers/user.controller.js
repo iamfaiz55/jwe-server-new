@@ -637,34 +637,73 @@ exports.getFilteredProducts = asyncHandler(async (req, res) => {
 
 
 
+// exports.updateProfile = asyncHandler(async (req, res) => {
+//     upload(req, res, async (err) => {
+//         if (err) {
+//             return res.status(500).json({ message: 'Error uploading file' });
+//         }
+//         const user = await User.findById(req.body.userId);
+//         if (!user) {
+//             return res.status(404).json({ message: 'User not found' });
+//         }
+//             if (user.image) {
+//                 const existing = user.image.split('/').pop().split('.')[0];
+//                     await cloudinary.uploader.destroy(existing);
+//             }  
+//         const {secure_url} = await cloudinary.uploader.upload(req.files[0].path);
+//         // console.log(req.body.userId);
+//         const updated = await User.findByIdAndUpdate(req.body.userId, {image:secure_url})
+//         const x = await User.findById(updated._id)
+        
+//     //    console.log(updated);
+       
+//         res.json({ message: "Profile image upload successfully", result:x });
+//     });
+// });
+
 exports.updateProfile = asyncHandler(async (req, res) => {
     upload(req, res, async (err) => {
+        console.log("req.body.userId", req.body.userId);
+        console.log("req.body.images", req.files);
         if (err) {
-            return res.status(500).json({ message: 'Error uploading file' });
+            if (err.code === "LIMIT_FILE_SIZE") {
+                return res.status(400).json({ message: "File too large. Maximum size is 5MB." });
+            }
+            return res.status(500).json({ message: "Error uploading file" });
         }
+
+        // Validate that a file exists
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+
         const user = await User.findById(req.body.userId);
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({ message: "User not found" });
         }
-            if (user.image) {
-                const existing = user.image.split('/').pop().split('.')[0];
-                    await cloudinary.uploader.destroy(existing);
-            }  
-        const {secure_url} = await cloudinary.uploader.upload(req.files[0].path);
-        // console.log(req.body.userId);
-        const updated = await User.findByIdAndUpdate(req.body.userId, {image:secure_url})
-        const x = await User.findById(updated._id)
-        
-    //    console.log(updated);
-       
-        res.json({ message: "Profile image upload successfully", result:x });
+
+        // Delete old image from Cloudinary (if it exists)
+        if (user.image) {
+            const existing = user.image.split("/").pop().split(".")[0];
+            await cloudinary.uploader.destroy(existing);
+        }
+
+        // Upload new image to Cloudinary
+        const { secure_url } = await cloudinary.uploader.upload(req.files[0].path);
+        await User.findByIdAndUpdate(req.body.userId, { image: secure_url });
+
+        const updatedUser = await User.findById(req.body.userId);
+        res.json({ message: "Profile image uploaded successfully", result: updatedUser });
     });
+
+// res.json({message:"no more"})
 });
+
 
 exports.updateProfileData = asyncHandler(async (req, res) => {
     const {id}=req.params
     const result = await User.findByIdAndUpdate(id, req.body)
-    const x = await User.findById(id)
+    const x = await User.findById(result._id)
     res.json({messaege:"User Update Success", result:x})
 });
 exports.getProfile = asyncHandler(async(req, res)=> {
@@ -764,7 +803,7 @@ const getProductDetails = async (orderItems) => {
 
     const discountedProducts = productDetails.map(item => {
         const selectedVarient = item.product.varient.find(vari => vari._id == item.varientId);
-        const originalPrice = selectedVarient.price;
+        const originalPrice = 1000;
         const discountAmount = (discount / 100) * originalPrice;
         const discountedPrice = originalPrice - discountAmount;
 

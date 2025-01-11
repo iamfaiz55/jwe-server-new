@@ -3,6 +3,7 @@ const mongoose = require("mongoose")
 const cors = require("cors")
 const fs = require("fs")
 const path = require("path")
+const bodyParser= require("body-parser")
 const socketIO = require("socket.io")
 const http = require("http")
 const morgan = require("morgan")
@@ -45,6 +46,8 @@ app.use((req, res, next) => {
   
   
 app.use(express.json())
+app.use(bodyParser.json({ limit: "10mb" })); // For JSON data
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }))
 app.use(
   cors({
     origin: true,
@@ -73,19 +76,26 @@ app.use(morgan("dev"))
 app.use("/api/adminAuth", require("./routers/admin.auth.routes"))
 app.use("/api/userAuth", require("./routers/user.auth.routes"))
 app.use("/api/admin", adminProtected, require("./routers/admin.routes"))
-app.use("/api/user", userProtected, require("./routers/user.routes"))
+app.use("/api/user",  require("./routers/user.routes"))
 app.use("/api/open", require("./routers/open.routes"))
 
 app.use("*", (req, res)=> {
     res.status(404).json({message:"Resource not Found"})
 })
+// app.use((err, req, res, next) => {
+//   if (err.type === "entity.too.large") {
+//       return res.status(413).json({ message: "Payload too large. Please reduce the file size." });
+//   }
+//   next(err);
+// });
+
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ message: "Something went wrong" });
 });
 const io = socketIO(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin:true,
     credentials: true,
   },
 });

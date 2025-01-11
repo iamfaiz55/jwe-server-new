@@ -75,18 +75,22 @@
         const token = jwt.sign({ userId: user._id }, process.env.JWT_KEY, { expiresIn: "1d" });
     
         // Send the token as a cookie
-        res.cookie("user", token, {
-            maxAge: 86400000, // 1 day
-            httpOnly: true
-        });
+        // res.cookie("user", token, {
+        //     maxAge: 86400000, // 1 day
+        //     httpOnly: true
+        // });
     
         // Send a success response with user data (excluding password)
         res.json({
             message: "Login successful",
             result: {
-                _id: user._id,
-                name: user.name,
-                email: user.email
+                mobile:user.mobile,
+        _id:user._id,
+        name:user && user.name && user.name ,
+        email:user && user.email && user.email ,
+        image:user && user.image && user.image,
+
+                token
             }
         });
     });
