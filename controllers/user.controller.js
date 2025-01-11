@@ -51,12 +51,12 @@ exports.createOrder = asyncHandler(async (req, res) => {
         }
 
         const productDetails = await getProductDetails(orderItems);
-        console.log("product details ",productDetails);
-        console.log("req.body",req.body);
-        console.log("orderItems",orderItems);
+        // console.log("product details ",productDetails);
+        // console.log("req.body",req.body);
+        // console.log("orderItems",orderItems);
         
         if (!productDetails || productDetails.length === 0) {
-            return res.status(404).json({ message: 'Products not found.' });
+            return res.status(405).json({ message: 'Products not found.' });
         }
 
         const userData = await User.findById(userId);
@@ -78,10 +78,10 @@ exports.createOrder = asyncHandler(async (req, res) => {
         let totalMakingChargesAmount = 0;
 
         const discountedProducts = productDetails.map(item => {
-            const selectedVarient = item.product.varient.find(vari => vari._id == item.varientId )
+            const selectedVarient = item.product.varient.find(vari => vari._id == item.varientId)
 
-            // console.log("selectedVarient", selectedVarient);
-            // console.log("varientId",item.varientId);
+            console.log("selectedVarient", selectedVarient);
+            // console.log("varientId",item);
             
             const originalPrice = selectedVarient.price;
             const discountAmount = (discount / 100) * originalPrice;
@@ -108,6 +108,7 @@ exports.createOrder = asyncHandler(async (req, res) => {
         });
 
         const total = Math.round((subtotal + totalMakingChargesAmount + totalSalesTaxAmount) * 100);
+// console.log("orderItems",orderItems);
 
         const orderItemsFormatted = orderItems.map(item => ({
             productId: item._id,
@@ -761,9 +762,11 @@ exports.razorpay = asyncHandler(async (req, res) => {
 const getProductDetails = async (orderItems) => {
    
     
+    console.log("item find",orderItems );
     const productDetails = await Promise.all(orderItems.map(async (item) => {
       try {
         const product = await Product.findById(new mongoose.Types.ObjectId(item._id));
+        
         if (!product) {
           console.error(`Product not found for productId: ${item._id}`);
           return null;
