@@ -589,6 +589,51 @@ exports.cancelOrder = asyncHandler(async(req, res)=> {
 // });
 
 
+// exports.getFilteredProducts = asyncHandler(async (req, res) => {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = parseInt(req.query.limit) || 12;
+//     const skip = (page - 1) * limit;
+//     const { material } = req.query;
+
+//     const query = {};
+//     if (material) {
+//         query.material = material;
+//     }
+
+//     // Cache key for filtered products
+//     const filteredCacheKey = `filteredProducts_${material}_${page}_${limit}`;
+//     let filteredProducts = await redisClient.get(filteredCacheKey);
+
+//     if (!filteredProducts) {
+//         // Use lean to avoid overhead of Mongoose documents
+//         filteredProducts = await Product.find(query)
+//             .skip(skip)
+//             .limit(limit)
+//             .lean();
+
+//         await redisClient.set(filteredCacheKey, JSON.stringify(filteredProducts), "EX", 3600); 
+//     } else {
+//         filteredProducts = JSON.parse(filteredProducts);
+//     }
+
+//     const totalProducts = await Product.countDocuments(query);
+//     const totalPages = Math.ceil(totalProducts / limit);
+
+//     res.json({
+//         message: "Filtered Products Fetch Success",
+//         result: filteredProducts,
+//         pagination: {
+//             currentPage: page,
+//             totalPages,
+//             totalProducts,
+//             hasNextPage: page < totalPages,
+//             hasPrevPage: page > 1,
+//             nextPage: page < totalPages ? page + 1 : null,
+//             prevPage: page > 1 ? page - 1 : null,
+//         },
+//     });
+// });
+
 exports.getFilteredProducts = asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 12;
@@ -600,12 +645,11 @@ exports.getFilteredProducts = asyncHandler(async (req, res) => {
         query.material = material;
     }
 
-    // Cache key for filtered products
-    const filteredCacheKey = `filteredProducts_${material}_${page}_${limit}`;
+    const filteredCacheKey = `filteredProducts_${material || 'all'}_${page}_${limit}`;
+    
     let filteredProducts = await redisClient.get(filteredCacheKey);
 
     if (!filteredProducts) {
-        // Use lean to avoid overhead of Mongoose documents
         filteredProducts = await Product.find(query)
             .skip(skip)
             .limit(limit)
@@ -619,21 +663,22 @@ exports.getFilteredProducts = asyncHandler(async (req, res) => {
     const totalProducts = await Product.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
 
+    const pagination = {
+        currentPage: page,
+        totalPages,
+        totalProducts,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+        nextPage: page < totalPages ? page + 1 : null,
+        prevPage: page > 1 ? page - 1 : null,
+    };
+
     res.json({
         message: "Filtered Products Fetch Success",
         result: filteredProducts,
-        pagination: {
-            currentPage: page,
-            totalPages,
-            totalProducts,
-            hasNextPage: page < totalPages,
-            hasPrevPage: page > 1,
-            nextPage: page < totalPages ? page + 1 : null,
-            prevPage: page > 1 ? page - 1 : null,
-        },
+        pagination,
     });
 });
-
 
 
 
